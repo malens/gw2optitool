@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="gw2optitool:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/gw2optitool_jar</output-path>
+    <root id="archive" name="gw2optitool.jar">
+      <element id="module-output" name="gw2optitool" />
+    </root>
+  </artifact>
+</component>
