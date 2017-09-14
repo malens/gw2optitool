@@ -7,246 +7,205 @@ import java.util.Comparator;
 import static java.lang.Integer.min;
 import static java.lang.Math.abs;
 import static java.lang.Math.pow;
+import com.malens.opt.Utilities.Result;
+import com.malens.opt.Modifiers.*;
+import com.malens.opt.Utilities.Stats;
+
 
 public class Main {
+    static String USAGE =
+        "-cu/--countUtil [0/1] \n" +
+        "-cf/--countFood [0/1]\n" +
+        "-exc/--exclude [Head | Shoulders | Chest | Legs | Boots " +
+                "| Hands | Back | Amulet | Ring1 | Ring2 | Accessory1 " +
+                "| Accessory2 | Mainhand | Offhand]\n" +
+        "-i/--include [Berserker/Assasin...etc]\n" +
+        "-po/--power [int]\n" +
+        "-pr/--precision\n" +
+        "-f/--ferocity\n" +
+        "-t/--toughness\n" +
+        "-v/--vitality\n" +
+        "-c/--concentration\n" +
+        "-exp/--expertise\n" +
+        "-hp/--healingpower\n" +
+        "-cd/--conditiondamage\n" +
+        "-cr/--countrunes\n" +
+        "-cs/--countsigils";
 
+    static Parser parser = new Parser();
     public static void main(String[] args) {
 
-        class Food{
-            int id;
-            String name;
-            public Food(int id, String name) {
-                this.id = id;
-                this.name = name;
-            }
+        parser.parse(args);
 
-            public int getId() {
-                return id;
-            }
-
-            public String getName() {
-                return name;
-            }
+        if (args.length < 2 || parser.getParsedArgs().isHelp()) {
+            System.out.println(USAGE);
+            return;
         }
 
 
-        class Result implements Comparable<Result>{
-            @Override
-            public int compareTo(Result o) {
 
-                if (this.EffectivePower == o.EffectivePower) {
-                    if (this.BoonDuration == o.BoonDuration) return 0;
-                    if (this.BoonDuration < o.BoonDuration) return -1;
-                    else return 1;
-                };
-                if (this.EffectivePower < o.EffectivePower) return -1;
-                else return 1;
-            }
+        //boolean countUtil = false;
+        //boolean countFood = true;
+        //boolean predefined = true;
 
-            public int compareTo2(Result o) {
-
-                if (this.TotalStats == o.TotalStats) {
-                    if (this.EffectivePower == o.EffectivePower){
-                        if (this.BoonDuration == o.BoonDuration) return 0;
-                        if (this.BoonDuration < o.BoonDuration) return -1;
-                        else return 1;
-                    }
-                    if (this.EffectivePower < o.EffectivePower) return -1;
-                    else return 1;
-
-                };
-                if (this.TotalStats < o.TotalStats) return -1;
-                else return 1;
-            }
-
-            int hash;
-            double EffectivePower;
-            double CritChance;
-            double BoonDuration;
-            double TotalStats;
-            Food myFood;
-
-            public Result(int hash, double effectivePower, double critChance, double boonDuration, double totalStats, Food food) {
-                this.hash = hash;
-                EffectivePower = effectivePower;
-                CritChance = critChance;
-                BoonDuration = boonDuration;
-                TotalStats = totalStats;
-                myFood = food;
-            }
-            public Result(int hash, double effectivePower, double critChance, double boonDuration, double totalStats) {
-                this.hash = hash;
-                EffectivePower = effectivePower;
-                CritChance = critChance;
-                BoonDuration = boonDuration;
-                TotalStats = totalStats;
-                myFood = new Food(0,"Not Applicable");
-            }
-
-
-            Comparator<Result> byPower = new ResultComparator();
-
-            class ResultComparator implements Comparator<Result>{
-
-                @Override
-                public int compare(Result o1, Result o2) {
-
-                    if (o1.EffectivePower == o2.EffectivePower) {
-                        if (o1.BoonDuration == o2.BoonDuration) return 0;
-                        if (o1.BoonDuration < o2.BoonDuration) return -1;
-                        else return 1;
-                    };
-                    if (o1.EffectivePower < o2.EffectivePower) return -1;
-                    else return 1;
-                }
-            }
-
-            @Override
-            public String toString() {
-                return "Result{" +
-                        "hash=" + hash +
-                        ", EffectivePower=" + EffectivePower +
-                        ", CritChance=" + CritChance +
-                        ", BoonDuration=" + BoonDuration +
-                        ", TotalStats=" + TotalStats +
-                        '}';
-            }
-        }
-
-        boolean countUtil = false;
-        boolean countFood = true;
-        boolean predefined = true;
-
-        Sets sets = new Sets();
-        int totalConc = 1500;
-        int totalPrec = 2995;
+        //Sets sets = new Sets();
+        Sets sets = parser.getParsedArgs().getSets();
+        System.out.println(sets.getSetsArray().size());
+        System.out.println(parser.getParsedArgs().getSets().getSetsArray().size());
         ArrayList<Result> results = new ArrayList<>();
-        //exclude certain pieces (for example not wanting to statswap pieces with runes/sigils)
-        ExcludeSet excludeSet = new ExcludeSet();
-        if (predefined)
-        {
-            excludeSet = new ExcludeSet(0,1,2,3,4,5,13);
-        }
+
 
         int utilNum = 1;
-        ArrayList<Food> utils = new ArrayList<Food>();
-        if(countUtil){
-            utils.add(new Food(0, "Toxic Maintenance Oil"));
-            utils.add(new Food(1, "Magnanimous Maintenance Oil"));
-            utils.add(new Food(2, "Peppermint Oil"));
+        ArrayList<Util> utils = new ArrayList<Util>();
+        if(parser.getParsedArgs().isCountUtil()){
+            utils.add(new Util(0, "Toxic Maintenance Oil", p -> new Stats(0,0,0,0,0,(p.Power * 0.03 + p.ConditionDamage * 0.06) ,0,0,0)));
+            utils.add(new Util(1, "Magnanimous Maintenance Oil", p -> new Stats(0,0,0,0,0,(p.Toughness * 0.03 + p.Vitality * 0.03) ,0,0,0)));
+            utils.add(new Util(2, "Peppermint Oil", p -> new Stats(0,0,0,0,0,(p.Precision * 0.03 + p.HealingPower * 0.06) ,0,0,0)));
             utilNum = utils.size();
-        }
+        } else utils.add(new Util(0, "Not counted in sim", p -> new Stats(0,0,0,0,0,0,0,0,0)));
 
 
+        ArrayList<Food> foods = new ArrayList<>();
+        if(parser.getParsedArgs().isCountFood()){
+            foods.add(new Food(0, "Boon dur", p -> new Stats(0,0,0,0,0,100,0,0,0)));
+            foods.add(new Food(1, "Power/fero", p -> new Stats(100,0,70,0,0,0,0,0,0)));
+        } else foods.add(new Food(0, "Not counted in sim", p -> new Stats(0,0,0,0,0,0,0,0,0)));
 
-     for (int m = 0; m <utilNum; m++)
-        for (Integer i = 0; i <= pow(sets.getSetsArray().size(), 14); i++){
-            //if (i%100==0) System.out.println(i);
-            double myPower = 36 + 150 + 170 + 1000 + 30*25;// + 100;
-            double myFerocity = 36 + 170;// + 70;
-            double myPrecision = 36 + 420 + 150 + 170 + 1000;
-            double myConc = 33*15 + 30*15 + 100;
-            /*/manually add stats for predecided pieces, or fotm stats
+        ArrayList<Rune> runes = new ArrayList<>();
+        if(parser.getParsedArgs().isCountRunes()){
+            runes.add(new Rune(0, "Rune of Leadership", p -> new Stats(36,36,36,36,36,30*15,0,36,36)));
+            runes.add(new Rune(1, "Rune of Firebrand", p -> new Stats(0,0,0,0,0,35*15,0,0,175)));
+        } else runes.add(new Rune(0, "Not counted in sim", p -> new Stats(0,0,0,0,0,0,0,0,0)));
 
-             */
-            if (predefined){
-                myPower += 551;
-                myFerocity += 338;
-                myPrecision += 419;
-                myConc += 44;
-                myConc += 225;
-                myPrecision += 225;
-            }
-
-            //*/
-            if (countUtil){
-                switch (m){
-                    case 0 : myConc += (1036) * 0.03;
-                        break;
-                    case 1 : myConc += (2072) * 0.03;
-                        break;
-                    case 2 : myConc += (1072) * 0.03;
-                        break;
-                    default: break;
-                }
-            }
+        ArrayList<Sigil> sigils = new ArrayList<>();
+        if(parser.getParsedArgs().isCountSigils()){
+            sigils.add(new Sigil(0, "Sigil of Concentration", p -> new Stats(0,0,0,0,0,33*15,0,0,0)));
+        } else sigils.add(new Sigil(0, "Not counted in sim", p -> new Stats(0,0,0,0,0,0,0,0,0)));
 
 
+        Stats boons = new Stats(25*30,420,0,0,0,0,0,0,0);
+        Stats otherbuffs = new Stats(0,150,0,0,0,0,0,0,0);
+        Stats banners = new Stats(170,170,170,0,0,0,0,0,170);
+        Stats fotm = new Stats (0,225,0,225,0,225,0,0,0);
+        //Stats specialStats = new Stats (0,0,0,0, 63*15, 0,0,0,0);
+        for (Rune currentRune : runes) {
+            for (Sigil currentSigil : sigils) {
+                for (Food currentFood : foods) {
+                    for (Util currentUtil : utils) {
+                        for (Integer i = 0; i <= pow(parser.getParsedArgs().getSets().getSetsArray().size(), 14); i++) {
 
-            Integer j = i;
-            for (int k = 0; k < 14; k++) {
-                if ((!excludeSet.contains(k))||(!predefined)) {
-                    myPower += sets.getSetsArray().get(j % sets.getSetsArray().size()).getSet().get(k).getPower();
-                    myPrecision += sets.getSetsArray().get(j % sets.getSetsArray().size()).getSet().get(k).getPrecision();
-                    myFerocity += sets.getSetsArray().get(j % sets.getSetsArray().size()).getSet().get(k).getFerocity();
-                    myConc += sets.getSetsArray().get(j % sets.getSetsArray().size()).getSet().get(k).getConcentration();
-                    if (countUtil) {
-                        switch (m) {
-                            case 0:
-                                myConc += sets.getSetsArray().get(j % sets.getSetsArray().size()).getSet().get(k).getPower() * 0.03;
-                                break;
-                            case 1:
-                                myConc += sets.getSetsArray().get(j % sets.getSetsArray().size()).getSet().get(k).getToughness() * 0.03;
-                                break;
-                            case 2:
-                                myConc += sets.getSetsArray().get(j % sets.getSetsArray().size()).getSet().get(k).getPrecision() * 0.03;
-                                break;
-                            default:
-                                break;
+                            ////////////////////////////////////////////////////////////
+                            // initialize with base stats + runes and sigils
+                            // (everything that counts towards food bonus)
+                            ////////////////////////////////////////////////////////////
+
+                            Stats baseStats = new Stats(1000, 1000, 0, 1000, 1000, 0, 0, 0, 0);
+                            baseStats.add(currentRune.getAllStats(baseStats));
+                            baseStats.add(currentSigil.getAllStats(baseStats));
+                            baseStats.add(parser.getParsedArgs().getStats());
+
+                            Stats myStats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+                            ////////////////////////////////////////////////////////////
+                            // add all gear stats
+                            // (it also counts towards food bonuses)
+                            ////////////////////////////////////////////////////////////
+
+                            Integer j = i;
+                            for (int k = 0; k < 14; k++) {
+                                if ((!parser.getParsedArgs().getExcludeSet().contains(k))) {
+                                    baseStats.add(sets.getSetsArray().get(j % sets.getSetsArray().size()).getSet().get(k).getStats());
+                                }
+                                j /= sets.getSetsArray().size();
+                            }
+
+                            ////////////////////////////////////////////////////////////
+                            // add all other stats
+                            ////////////////////////////////////////////////////////////
+
+                            myStats.add(currentFood.getAllStats(baseStats));
+                            myStats.add(currentUtil.getAllStats(baseStats));
+                            myStats.add(baseStats);
+                            myStats.add(boons);
+                            myStats.add(otherbuffs);
+                            myStats.add(banners);
+
+                            if (parser.getParsedArgs().isForFotm()) {
+                                myStats.add(fotm);
+                            }
+                            ////////////////////////////////////////////////////////////
+                            // filter results to fit expectations
+                            ////////////////////////////////////////////////////////////
+
+                            double critChance = Double.min((myStats.Precision - 895) / 21, 100) / 100;
+                            double feroModifier = (150 + myStats.Ferocity / 15) / 100;
+
+                            double effectivePower = myStats.Power * (1 * (1 - critChance) + feroModifier * critChance);
+
+                            if (abs(myStats.Concentration - 1500) < 15) {// && abs(myPrecision-2995) < 20) {
+                                results.add(new Result(
+                                        i,
+                                        effectivePower,
+                                        Double.min(100, ((myStats.Precision - 895) / 21)),
+                                        myStats.Concentration / 15,
+                                        myStats.Power + Double.min(myStats.Precision, 2995) + myStats.Ferocity + myStats.Concentration,
+                                        currentFood,
+                                        currentUtil)
+                                );
+                            }
+                        }
+
+                        ////////////////////////////////////////////////////////////
+                        // remove duplicates
+                        ////////////////////////////////////////////////////////////
+
+                        System.out.println(results.size());
+                        int size = results.size();
+                        for (int i = 0; i < size; i++) {
+                            for (int j = i; j < size; j++) {
+                                if (abs(results.get(i).getEffectivePower() - results.get(j).getEffectivePower()) < 0.5
+                                        && abs(results.get(i).getBoonDuration() - results.get(j).getBoonDuration()) < 0.05
+                                        && results.get(i).getMyFood().getId() == results.get(j).getMyFood().getId()
+                                        && results.get(i).getMyUtil().getId() == results.get(j).getMyUtil().getId()) {
+                                    results.remove(j);
+                                    size--;
+                                }
+
+                            }
                         }
                     }
-
-
                 }
-                j/=sets.getSetsArray().size();
-            }
-
-
-
-            double critChance = Double.min ((myPrecision - 895)/21, 100) / 100;
-            double feroModifier = (150 + myFerocity/ 15) / 100;
-
-            double effectivePower = myPower * (1 * (1 - critChance) +  feroModifier * critChance);
-
-            if (abs(myConc-1500) < 15){// && abs(myPrecision-2995) < 20) {
-                if (countUtil){
-                    results.add(new Result(i, effectivePower, Double.min(100, ((myPrecision - 895) / 21)), myConc/15, myPower + Double.min(myPrecision, 2995) + myFerocity + myConc, utils.get(m)));
-                } else results.add(new Result(i, effectivePower, Double.min(100, ((myPrecision - 895) / 21)), myConc/15, myPower + Double.min(myPrecision, 2995) + myFerocity + myConc));
-
-                //System.out.println(i+" "+ effectivePower + " " + Double.min(100, ((myPrecision - 895) / 21)) + " " + myConc/15 + " prec: " + myPrecision);
             }
         }
 
+            ////////////////////////////////////////////////////////
+            // sort results by efficiency
+            ////////////////////////////////////////////////////////
 
-        System.out.println(results.size());
-        int size = results.size();
-        for (int i = 0; i<size; i++){
-            for (int j = i; j<size; j++){
-                if (abs(results.get(i).EffectivePower - results.get(j).EffectivePower) < 0.5 && abs(results.get(i).BoonDuration - results.get(j).BoonDuration) < 0.05 &&
-                        results.get(i).myFood.getId() == results.get(j).myFood.getId())
-                {
-                    results.remove(j);
-                    size--;
-                }
+            results.sort(Result::compareTo);
+            System.out.println(results.size());
 
+            DecimalFormat form = new DecimalFormat("0.00");
+            String space = "\n";
+
+
+            ////////////////////////////////////////////////////////////
+            // print out results
+            ////////////////////////////////////////////////////////////
+
+
+            for (int i = 0; i<results.size(); i++){
+                System.out.println(
+                        "EP: "
+                        + form.format(results.get(i).getEffectivePower()) + space + "Crit%: "
+                        + form.format(results.get(i).getCritChance()) + space + "Boon%: "
+                        + form.format(results.get(i).getBoonDuration()) + space + "Total: "
+                        + form.format(results.get(i).getTotalStats()) + space + "Food: "
+                        + results.get(i).getMyFood().getName() + space + "Util: "
+                        + results.get(i).getMyUtil().getName()
+                        + sets.printSet(results.get(i).getHash()));
             }
-        }
-        results.sort(Result::compareTo);
-        System.out.println(results.size());
 
-        DecimalFormat form = new DecimalFormat("0.00");
-        String space = "\n";
-
-        for (int i = 0; i<results.size(); i++){
-            //System.out.println(results.get(i).toString());
-            System.out.println("EP: "
-                    + form.format(results.get(i).EffectivePower) + space + "Crit%: "
-                    + form.format(results.get(i).CritChance) + space + "Boon%: "
-                    + form.format(results.get(i).BoonDuration) + space + "Total: "
-                    + form.format(results.get(i).TotalStats) + space + "Food: "
-                    + results.get(i).myFood.getName()
-                    + sets.printSet(results.get(i).hash));
-        }
 
 
 

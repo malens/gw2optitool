@@ -26,6 +26,11 @@ public class ExcludeSet {
         return false;
     }
 
+    public void add (int a)
+    {
+        list.add(a);
+    }
+
     //public boolean divides (Integer i){
     //for (int j = 0; j < list.size(); j++){
     //        if
