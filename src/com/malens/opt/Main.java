@@ -55,13 +55,12 @@ public class Main {
         ArrayList<Result> results = new ArrayList<>();
 
 
-        int utilNum = 1;
         ArrayList<Util> utils = new ArrayList<Util>();
         if(parser.getParsedArgs().isCountUtil()){
             utils.add(new Util(0, "Toxic Maintenance Oil", p -> new Stats(0,0,0,0,0,(p.Power * 0.03 + p.ConditionDamage * 0.06) ,0,0,0)));
             utils.add(new Util(1, "Magnanimous Maintenance Oil", p -> new Stats(0,0,0,0,0,(p.Toughness * 0.03 + p.Vitality * 0.03) ,0,0,0)));
             utils.add(new Util(2, "Peppermint Oil", p -> new Stats(0,0,0,0,0,(p.Precision * 0.03 + p.HealingPower * 0.06) ,0,0,0)));
-            utilNum = utils.size();
+
         } else utils.add(new Util(0, "Not counted in sim", p -> new Stats(0,0,0,0,0,0,0,0,0)));
 
 
@@ -142,7 +141,7 @@ public class Main {
 
                             double effectivePower = myStats.Power * (1 * (1 - critChance) + feroModifier * critChance);
 
-                            if (abs(myStats.Concentration - 1500) < 15) {// && abs(myPrecision-2995) < 20) {
+                            if (abs(myStats.Concentration - 1500) < 150) {// && abs(myPrecision-2995) < 20) {
                                 results.add(new Result(
                                         i,
                                         effectivePower,
@@ -150,7 +149,9 @@ public class Main {
                                         myStats.Concentration / 15,
                                         myStats.Power + Double.min(myStats.Precision, 2995) + myStats.Ferocity + myStats.Concentration,
                                         currentFood,
-                                        currentUtil)
+                                        currentUtil,
+                                        currentRune,
+                                        currentSigil)
                                 );
                             }
                         }
@@ -159,7 +160,7 @@ public class Main {
                         // remove duplicates
                         ////////////////////////////////////////////////////////////
 
-                        System.out.println(results.size());
+                        //System.out.println(results.size());
                         int size = results.size();
                         for (int i = 0; i < size; i++) {
                             for (int j = i; j < size; j++) {
@@ -202,7 +203,9 @@ public class Main {
                         + form.format(results.get(i).getBoonDuration()) + space + "Total: "
                         + form.format(results.get(i).getTotalStats()) + space + "Food: "
                         + results.get(i).getMyFood().getName() + space + "Util: "
-                        + results.get(i).getMyUtil().getName()
+                        + results.get(i).getMyUtil().getName() + space + "Runes: "
+                        + results.get(i).getMyRune().getName() + space + "Sigils: "
+                        + results.get(i).getMySigil().getName()
                         + sets.printSet(results.get(i).getHash()));
             }
 
