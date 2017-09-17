@@ -2,20 +2,28 @@ package com.malens.opt.UI;/**
  * Created by malens on 2017-09-15.
  */
 
+import com.malens.opt.Parser;
 import javafx.application.Application;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableArray;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+
+
+
 
 public class UI extends Application {
 
@@ -32,12 +40,80 @@ public class UI extends Application {
         return modeBox;
     }
 
+    public static class setName {
+        public SimpleStringProperty name;
+
+        public setName(SimpleStringProperty name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name.get();
+        }
+
+        public SimpleStringProperty nameProperty() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name.set(name);
+        }
+    }
+
+
+
     private GridPane setUpChrono()
     {
+
+
+
         GridPane chronoPane = new GridPane();
-        chronoPane.add(new TextField("asd"), 0, 0);
-        chronoPane.add(new TextField("asd"), 1, 0);
-        chronoPane.add(new TextField("asd"), 2, 0);
+        TableView<setName> includedSets = new TableView<>();
+        includedSets.setEditable(true);
+        TableColumn selectedColumn = new TableColumn("Selected stat combos");
+        selectedColumn.setCellValueFactory(
+                new PropertyValueFactory<setName, String>("name")
+        );
+        selectedColumn.setEditable(false);
+        selectedColumn.setPrefWidth(200);
+
+        includedSets.getColumns().add(selectedColumn);
+        includedSets.setFixedCellSize(25);
+        includedSets.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        ChoiceBox<String> possibleSets = new ChoiceBox<>(FXCollections.observableArrayList(
+           "Berserker", "Commander", "Assassin"
+        ));
+        possibleSets.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                includedSets.getItems().add(new setName(new SimpleStringProperty(newValue)));
+                possibleSets.getItems().remove(newValue);
+            }
+        });
+        chronoPane.add(possibleSets, 0, 1);
+        chronoPane.add(includedSets, 0, 2);
+
+
+
+        Button start = new Button("Start sim");
+        start.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Parser parser = new Parser();
+                String args[] = new String[10];
+                args[0] = "-i ";
+                for (setName x:includedSets.getItems()){
+                    args[0] +=x.getName()+" ";
+                }
+
+                parser.parse(args);
+
+            }
+        });
+
+
+
         return chronoPane;
     }
 

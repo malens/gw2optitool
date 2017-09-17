@@ -116,7 +116,7 @@ public class Parser {
     */
     private ParsedArgs parsed;
 
-    ParsedArgs getParsedArgs (){
+    public ParsedArgs getParsedArgs (){
         return this.parsed;
     }
 
