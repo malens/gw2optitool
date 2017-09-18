@@ -27,8 +27,8 @@ public class Simulator {
     public static void simulate (Parser.ParsedArgs args, ArrayList<Util> utils, ArrayList<Food> foods, ArrayList<Rune> runes, ArrayList<Sigil> sigils){
 
         Sets sets = args.getSets();
-        System.out.println(sets.getSetsArray().size());
-        System.out.println(args.getSets().getSetsArray().size());
+        //System.out.println(sets.getSetsArray().size());
+        //System.out.println(args.getSets().getSetsArray().size());
         ArrayList<Result> results = new ArrayList<>();
 
 
@@ -144,32 +144,50 @@ public class Simulator {
             }
         }
 
-        ////////////////////////////////////////////////////////////
-        // remove duplicates
-        ////////////////////////////////////////////////////////////
-        System.out.println("\n");
 
-        System.out.println(results.size());
-        int size = results.size();
-        for (int i = 0; i < size; i++) {
-            for (int j = i; j < size; j++) {
-                if (abs(results.get(i).getEffectivePower() - results.get(j).getEffectivePower()) < 0.5
-                        && abs(results.get(i).getBoonDuration() - results.get(j).getBoonDuration()) < 0.05
-                        && results.get(i).getMyFood().getId() == results.get(j).getMyFood().getId()
-                        && results.get(i).getMyUtil().getId() == results.get(j).getMyUtil().getId()) {
-                    results.remove(j);
-                    size--;
-                }
+        System.out.println("[==============================]100%");
 
-            }
-        }
-        System.out.println("Sorting...");
         ////////////////////////////////////////////////////////
         // sort results by efficiency
         ////////////////////////////////////////////////////////
 
-        results.sort(Result::compareTo);
+
         System.out.println(results.size());
+        System.out.println("Sorting...");
+        results.sort(Result::compareTo);
+
+        ////////////////////////////////////////////////////////////
+        // remove duplicates
+        ////////////////////////////////////////////////////////////
+
+        System.out.println("Removing duplicates...");
+        int size = results.size();
+        boolean flag = false;
+        int removed = 0;
+        for (int i = 0; i < size; i++) {
+            if (results.get(i).getEffectivePower() == 0) continue;
+            for (int j = i+1; j < size; j++) {
+                if (j==size) break;
+                if (abs(results.get(i).getEffectivePower() - results.get(j).getEffectivePower()) < 0.5
+                        && abs(results.get(i).getBoonDuration() - results.get(j).getBoonDuration()) < 0.05
+                        && results.get(i).getMyFood().getId() == results.get(j).getMyFood().getId()
+                        && results.get(i).getMyUtil().getId() == results.get(j).getMyUtil().getId()) {
+                    flag = true;
+                    removed++;
+                    results.set(j, new Result(0, 0, 0, 0, 0, new Food(0, "NaN", null), new Util(0, "NaN", null), new Rune(0,"NaN",null),new Sigil(0, "NaN", null)));
+                } else if(flag) {
+                    flag = false;
+                    break;
+                }
+
+            }
+        }
+
+        results.sort(Result::compareTo);
+
+        System.out.println(results.size()-removed);
+        System.out.println("Done");
+
 
         DecimalFormat form = new DecimalFormat("0.00");
         String space = "\n";
@@ -192,8 +210,8 @@ public class Simulator {
                             + results.get(i).getMyRune().getName() + space + "Sigils: "
                             + results.get(i).getMySigil().getName()
                             + sets.printSet(results.get(i).getHash()));
-        }*/
-
+        }
+*/
 
 
 

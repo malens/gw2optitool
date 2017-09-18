@@ -125,16 +125,21 @@ public class Parser {
         for (String s:args){
             all +=s + " ";
         }
-        System.out.println(all);
+        //System.out.println(all);
         String splitArgs[] = all.split("-");
         this.parsed = new ParsedArgs();
         int val;
         for (String s:splitArgs) {
             String split[] = s.split(" ");
             for (String x:split){
-                System.out.println(x);
+                //System.out.println(x);
             }
             switch (split[0].toLowerCase()) {
+                case "ff":
+                case "fotm":
+                    parsed.setForFotm(true);
+                    break;
+
                 case "h":
                 case "help":
                     this.parsed.setHelp(true);
@@ -170,9 +175,9 @@ public class Parser {
                 case "i":
                 case "include":
                     for (int i = 1; i < split.length; i++){
-                        System.out.println(split[i]);
+                        //System.out.println(split[i]);
                         parsed.sets.AddByName(split[i]);
-                        System.out.println(parsed.sets.getSetsArray().size());
+                        //System.out.println(parsed.sets.getSetsArray().size());
                     }
                     break;
 

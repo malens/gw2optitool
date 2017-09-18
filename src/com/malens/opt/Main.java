@@ -21,7 +21,7 @@ public class Main {
                     "-exc/--exclude [Head | Shoulders | Chest | Legs | Boots " +
                     "| Hands | Back | Amulet | Ring1 | Ring2 | Accessory1 " +
                     "| Accessory2 | Mainhand | Offhand]\n" +
-                    "-i/--include [Berserker/Assasin...etc]\n" +
+                    "-i/--include [Berserker | Assassin | Commander]\n" +
                     "-po/--power [int]\n" +
                     "-pr/--precision\n" +
                     "-f/--ferocity\n" +
@@ -32,7 +32,8 @@ public class Main {
                     "-hp/--healingpower\n" +
                     "-cd/--conditiondamage\n" +
                     "-cr/--countrunes\n" +
-                    "-cs/--countsigils";
+                    "-cs/--countsigils\n" +
+                    "-ff/--fotm";
 
     static Parser parser = new Parser();
 
