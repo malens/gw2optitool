@@ -5,14 +5,15 @@ import com.malens.opt.Modifiers.Rune;
 import com.malens.opt.Modifiers.Sigil;
 import com.malens.opt.Modifiers.Util;
 import com.malens.opt.Parser;
-import com.malens.opt.Set;
 import com.malens.opt.Sets;
 import com.malens.opt.Utilities.Math;
 import com.malens.opt.Utilities.Result;
 import com.malens.opt.Utilities.Stats;
 
-import javax.swing.text.Utilities;
-import java.math.BigInteger;
+
+import javax.sound.midi.Track;
+import java.io.File;
+import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -197,21 +198,44 @@ public class Simulator {
         // print out results
         ////////////////////////////////////////////////////////////
 
-/*
-        for (int i = 0; i<results.size(); i++){
-            System.out.println(
-                    "EP: "
-                            + form.format(results.get(i).getEffectivePower()) + space + "Crit%: "
-                            + form.format(results.get(i).getCritChance()) + space + "Boon%: "
-                            + form.format(results.get(i).getBoonDuration()) + space + "Total: "
-                            + form.format(results.get(i).getTotalStats()) + space + "Food: "
-                            + results.get(i).getMyFood().getName() + space + "Util: "
-                            + results.get(i).getMyUtil().getName() + space + "Runes: "
-                            + results.get(i).getMyRune().getName() + space + "Sigils: "
-                            + results.get(i).getMySigil().getName()
-                            + sets.printSet(results.get(i).getHash()));
+        File file = new File("out.out");
+        int i = 1;
+        try{
+            while (!file.createNewFile()){
+                file.renameTo(new File("out_" + i + ".out"));
+                i++;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
         }
-*/
+
+        PrintStream fileout;
+        try{
+            fileout = new PrintStream(file);
+            i = 0;
+            while (i<results.size()&&results.get(i).getEffectivePower()<1){
+                i++;
+            }
+            for (; i<results.size(); i++){
+                fileout.println(
+                        "EP: "
+                                + form.format(results.get(i).getEffectivePower()) + space + "Crit%: "
+                                + form.format(results.get(i).getCritChance()) + space + "Boon%: "
+                                + form.format(results.get(i).getBoonDuration()) + space + "Total: "
+                                + form.format(results.get(i).getTotalStats()) + space + "Food: "
+                                + results.get(i).getMyFood().getName() + space + "Util: "
+                                + results.get(i).getMyUtil().getName() + space + "Runes: "
+                                + results.get(i).getMyRune().getName() + space + "Sigils: "
+                                + results.get(i).getMySigil().getName()
+                                + sets.printSet(results.get(i).getHash()));
+            }
+        } catch (Exception exception){
+            exception.printStackTrace();
+        }
+
+
+
+
 
 
 

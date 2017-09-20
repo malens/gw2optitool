@@ -12,12 +12,14 @@ import javafx.collections.ObservableArray;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -62,10 +64,8 @@ public class UI extends Application {
 
 
 
-    private GridPane setUpChrono()
+    private Group setUpChrono()
     {
-
-
 
         GridPane chronoPane = new GridPane();
         TableView<setName> includedSets = new TableView<>();
@@ -87,6 +87,7 @@ public class UI extends Application {
         possibleSets.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (newValue == null) return;
                 includedSets.getItems().add(new setName(new SimpleStringProperty(newValue)));
                 possibleSets.getItems().remove(newValue);
             }
@@ -94,7 +95,15 @@ public class UI extends Application {
         chronoPane.add(possibleSets, 0, 1);
         chronoPane.add(includedSets, 0, 2);
 
-
+        CheckBox isRune = new CheckBox("Include runes");
+        CheckBox isSigil = new CheckBox("Include sigils");
+        CheckBox isFood = new CheckBox("Include food");
+        CheckBox isUtil = new CheckBox("Include utility");
+        Pane checkBoxes = new Pane(isRune, isSigil, isFood, isUtil);
+        VBox all = new VBox ();
+        all.setVisible(true);
+        all.setSpacing(5);
+        all.setPadding(new Insets(10,0,0,10));
 
         Button start = new Button("Start sim");
         start.setOnAction(new EventHandler<ActionEvent>() {
@@ -112,16 +121,20 @@ public class UI extends Application {
             }
         });
 
+        all.getChildren().add(start);
+        all.getChildren().add(checkBoxes);
+        all.getChildren().add(chronoPane);
 
 
-        return chronoPane;
+
+        return new Group(all);
     }
 
-    private GridPane setUpCondi()
+    private Group setUpCondi()
     {
-        GridPane condiPane = new GridPane();
-        condiPane.add(new TextField("dsa"), 0, 0);
-        return condiPane;
+        VBox condiPane = new VBox();
+        condiPane.getChildren().add(new TextField("dsa"));
+        return new Group(condiPane);
     }
 
     private void setScene (int oldval, int newval){
@@ -158,7 +171,7 @@ public class UI extends Application {
     private TextField test = new TextField("test");
     @Override
     public void start(Stage primaryStage) {
-        grids = new ArrayList<GridPane>();
+        ArrayList<Group> grids = new ArrayList<>();
         grids.add(setUpChrono());
         grids.add(setUpCondi());
 
