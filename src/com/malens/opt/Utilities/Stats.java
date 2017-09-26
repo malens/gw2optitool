@@ -122,4 +122,6 @@ public class Stats {
     public void setConditionDamage(double conditionDamage) {
         ConditionDamage = conditionDamage;
     }
+
+
 }

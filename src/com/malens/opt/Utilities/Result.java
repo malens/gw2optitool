@@ -18,6 +18,8 @@ public class Result implements Comparable<Result>{
         else return 1;
     }
 
+
+
     public int compareByTotalStats(Result o) {
 
         if (this.TotalStats == o.TotalStats) {
@@ -31,6 +33,17 @@ public class Result implements Comparable<Result>{
 
         };
         if (this.TotalStats < o.TotalStats) return -1;
+        else return 1;
+    }
+
+    public int compareByTooughness(Result o) {
+
+        if (this.getStats().getToughness() == o.getStats().getToughness()) {
+            if (this.BoonDuration == o.BoonDuration) return 0;
+            if (this.BoonDuration < o.BoonDuration) return -1;
+                else return 1;
+        };
+        if (this.getStats().getToughness() < o.getStats().getToughness()) return -1;
         else return 1;
     }
 
@@ -70,6 +83,10 @@ public class Result implements Comparable<Result>{
         return mySigil;
     }
 
+    public Stats getStats() {
+        return stats;
+    }
+
     private int hash;
     private double EffectivePower;
     private double CritChance;
@@ -79,6 +96,8 @@ public class Result implements Comparable<Result>{
     private Util myUtil;
     private Rune myRune;
     private Sigil mySigil;
+
+    private Stats stats;
 
     public Result(int hash, double effectivePower, double critChance, double boonDuration, double totalStats, Food myFood, Util myUtil, Rune myRune, Sigil mySigil) {
         this.hash = hash;
@@ -92,7 +111,18 @@ public class Result implements Comparable<Result>{
         this.myRune = myRune;
     }
 
-
+    public Result(int hash, double effectivePower, double critChance, double boonDuration, double totalStats, Food myFood, Util myUtil, Rune myRune, Sigil mySigil, Stats stats) {
+        this.hash = hash;
+        EffectivePower = effectivePower;
+        CritChance = critChance;
+        BoonDuration = boonDuration;
+        TotalStats = totalStats;
+        this.myFood = myFood;
+        this.myUtil = myUtil;
+        this.myRune = myRune;
+        this.mySigil = mySigil;
+        this.stats = stats;
+    }
 
     @Override
     public String toString() {

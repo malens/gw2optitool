@@ -1,5 +1,6 @@
 package com.malens.opt.Modifiers;
 
+import com.malens.opt.Utilities.CondiBonus;
 import com.malens.opt.Utilities.Stats;
 
 import java.util.function.Function;
@@ -10,10 +11,22 @@ import java.util.function.Function;
 public class Food{
     int id;
     String name;
+    CondiBonus condiBonus;
     public Food(int id, String name, Function<Stats, Stats> getStats) {
         this.id = id;
         this.name = name;
         this.getStats = getStats;
+    }
+
+    public Food(int id, String name, Function<Stats, Stats> getStats, CondiBonus condiBonus) {
+        this.id = id;
+        this.name = name;
+        this.condiBonus = condiBonus;
+        this.getStats = getStats;
+    }
+
+    public CondiBonus getCondiBonus() {
+        return condiBonus;
     }
 
     public int getId() {

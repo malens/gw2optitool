@@ -1,5 +1,6 @@
 package com.malens.opt;
 
+import com.malens.opt.Utilities.CondiBonus;
 import com.malens.opt.Utilities.Stats;
 
 import java.util.ArrayList;
@@ -31,6 +32,36 @@ public class Parser {
         Sets sets;
         Stats stats;
         boolean help = false;
+
+        double targetBoonDuration = 0.99;
+
+        CondiBonus condiPercentages = new CondiBonus();
+
+        CondiBonus condiBonuses = new CondiBonus();
+
+        CondiBonus condiDMGBonuses = new CondiBonus();
+
+        public CondiBonus getCondiPercentages() {
+            return condiPercentages;
+        }
+
+        public CondiBonus getCondiBonuses() {
+            return condiBonuses;
+        }
+
+        public CondiBonus getCondiDMGBonuses() {
+            return condiDMGBonuses;
+        }
+
+        public double CondiDmg = 0;
+
+        public double getTargetBoonDuration() {
+            return targetBoonDuration;
+        }
+
+        public double getCondiDmg() {
+            return CondiDmg;
+        }
 
         public boolean isCountRunes() {
             return countRunes;
@@ -120,6 +151,24 @@ public class Parser {
         return this.parsed;
     }
 
+    private double getVal(String split)
+    {
+        double val = 0;
+        for (int i = 0; i< split.length(); i++){
+            Character a = split.toCharArray()[i];
+            if (a=='.') {
+                int tmp = 10;
+                for (int j = i+1; j < split.length(); j++){
+                    a = split.toCharArray()[j];
+                    val += ((double)(a.charValue()-48))/tmp;
+                    tmp*=10;
+                }
+                break;
+            } else val = val * 10 + a.charValue()-48;
+        }
+        return val;
+    }
+
     public void parse (String[] args){
         String all = "";
         for (String s:args){
@@ -128,13 +177,15 @@ public class Parser {
         //System.out.println(all);
         String splitArgs[] = all.split("-");
         this.parsed = new ParsedArgs();
-        int val;
         for (String s:splitArgs) {
             String split[] = s.split(" ");
             for (String x:split){
                 //System.out.println(x);
             }
             switch (split[0].toLowerCase()) {
+                case "boon%":
+                    parsed.targetBoonDuration = getVal(split[1]);
+                    break;
                 case "ff":
                 case "fotm":
                     parsed.setForFotm(true);
@@ -169,7 +220,10 @@ public class Parser {
                     if (s.toLowerCase().contains("earring2")) parsed.getExcludeSet().add(10);
                     if (s.toLowerCase().contains("backpiece")) parsed.getExcludeSet().add(11);
                     if (s.toLowerCase().contains("mainhand")) parsed.getExcludeSet().add(12);
-                    if (s.toLowerCase().contains("offhand")) parsed.getExcludeSet().add(13);
+                    if (s.toLowerCase().contains("offhand")) {
+                        parsed.getExcludeSet().add(13);
+                        System.out.println("offhand");
+                    }
 
                     break;
                 case "i":
@@ -183,79 +237,47 @@ public class Parser {
 
                 case "po":
                 case "power":
-                    val = 0;
-                    for (Character a : split[1].toCharArray()){
-                        val = val * 10 + a.charValue()-48;
-                    }
-                    parsed.stats.setPower(val);
+                    parsed.stats.setPower(getVal(split[1]));
                     break;
                 case "pr":
                 case "precision":
-                    val = 0;
-                    for (Character a : split[1].toCharArray()){
-                        val = val * 10 + a.charValue()-48;
-                    }
-                    parsed.stats.setPrecision(val);
+                    parsed.stats.setPrecision(getVal(split[1]));
                     break;
                 case "f":
                 case "ferocity":
-                    val = 0;
-                    for (Character a : split[1].toCharArray()){
-                        val = val * 10 + a.charValue()-48;
-                    }
-                    parsed.stats.setFerocity(val);
+                    parsed.stats.setFerocity(getVal(split[1]));
                     break;
 
                 case "t":
                 case "toughness":
-                    val = 0;
-                    for (Character a : split[1].toCharArray()){
-                        val = val * 10 + a.charValue()-48;
-                    }
-                    parsed.stats.setToughness(val);
+                    parsed.stats.setToughness(getVal(split[1]));
                     break;
                 case "v":
                 case "vitality":
-                    val = 0;
-                    for (Character a : split[1].toCharArray()){
-                        val = val * 10 + a.charValue()-48;
-                    }
-                    parsed.stats.setVitality(val);
+                    parsed.stats.setVitality(getVal(split[1]));
                     break;
 
                 case "c":
                 case "concentration":
-                    val = 0;
-                    for (Character a : split[1].toCharArray()){
-                        val = val * 10 + a.charValue()-48;
-                    }
-                    parsed.stats.setConcentration(val);
+                    parsed.stats.setConcentration(getVal(split[1]));
                     break;
 
                 case "exp":
                 case "expertise":
-                    val = 0;
-                    for (Character a : split[1].toCharArray()){
-                        val = val * 10 + a.charValue()-48;
-                    }
-                    parsed.stats.setExpertise(val);
+                    parsed.stats.setExpertise(getVal(split[1]));
                     break;
                 case "hp":
                 case "healingpower":
-                    val = 0;
-                    for (Character a : split[1].toCharArray()){
-                        val = val * 10 + a.charValue()-48;
-                    }
-                    parsed.stats.setHealingPower(val);
+                    parsed.stats.setHealingPower(getVal(split[1]));
                     break;
 
                 case "cd":
                 case "conditiondamage":
-                    val = 0;
-                    for (Character a : split[1].toCharArray()){
-                        val = val * 10 + a.charValue()-48;
-                    }
-                    parsed.stats.setConditionDamage(val);
+                    parsed.stats.setConditionDamage(getVal(split[1]));
+                    break;
+
+                case"cdo":
+                    parsed.CondiDmg = getVal(split[1]);
                     break;
 
                 case "cr":
@@ -266,6 +288,71 @@ public class Parser {
                 case "cs":
                 case "countsigils":
                     parsed.setCountSigils(true);
+                    break;
+
+                case "bbd":
+                case "bonusbleeddur":
+                    parsed.condiBonuses.add("Bleeding", getVal(split[1]));
+                    break;
+                case "btd":
+                case "bonustormentdur":
+                    parsed.condiBonuses.add("Torment", getVal(split[1]));
+                    break;
+                case "bcd":
+                case "bonusconfusiondur":
+                    parsed.condiBonuses.add("Confusion", getVal(split[1]));
+                    break;
+                case "bburnd":
+                case "bonusburningdur":
+                    parsed.condiBonuses.add("Burning", getVal(split[1]));
+                    break;
+
+                case "bpd":
+                case "bonuspoisondur":
+                    parsed.condiBonuses.add("Poison", getVal(split[1]));
+                    break;
+
+                case "bbdmg":
+                case "bonusbleeddmg":
+                    parsed.condiDMGBonuses.add("Bleeding", getVal(split[1]));
+                    break;
+
+                case "btdmg":
+                case "bonustormentdmg":
+                    parsed.condiDMGBonuses.add("Torment", getVal(split[1]));
+                    break;
+                case "bcdmg":
+                case "bonusconfusiondmg":
+                    parsed.condiDMGBonuses.add("Confusion", getVal(split[1]));
+                    break;
+                case "bburndmg":
+                case "bonusburningdmg":
+                    parsed.condiDMGBonuses.add("Burning", getVal(split[1]));
+                    break;
+
+                case "bpdmg":
+                case "bonuspoisondmg":
+                    parsed.condiDMGBonuses.add("Poison", getVal(split[1]));
+                    break;
+
+                case "bleed%":
+                    parsed.condiPercentages.add("Bleeding", getVal(split[1]));
+                    break;
+
+                case "torment%":
+                    parsed.condiPercentages.add("Torment", getVal(split[1]));
+                    break;
+                case "confusion%":
+                    parsed.condiPercentages.add("Confusion", getVal(split[1]));
+                    break;
+                case "burning%":
+                    parsed.condiPercentages.add("Burning", getVal(split[1]));
+                    break;
+                case "poison%":
+                    parsed.condiPercentages.add("Poison", getVal(split[1]));
+                    break;
+                case "power%":
+                    parsed.condiPercentages.add("Power", getVal(split[1]));
                     break;
 
                 default:
