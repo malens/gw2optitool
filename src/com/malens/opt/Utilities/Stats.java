@@ -4,15 +4,15 @@ package com.malens.opt.Utilities;
  * Created by malens on 2017-09-04.
  */
 public class Stats {
-    public double Power;
-    public double Precision;
-    public double Ferocity;
-    public double Toughness;
-    public double Vitality;
-    public double Concentration;
-    public double Expertise;
-    public double HealingPower;
-    public double ConditionDamage;
+    public int Power;
+    public int Precision;
+    public int Ferocity;
+    public int Toughness;
+    public int Vitality;
+    public int Concentration;
+    public int Expertise;
+    public int HealingPower;
+    public int ConditionDamage;
 
     public Stats add (Stats o){
         this.Power += o.Power;
@@ -27,7 +27,7 @@ public class Stats {
         return this;
     }
 
-    public Stats(double power, double precision, double ferocity, double toughness, double vitality, double concentration, double expertise, double healingPower, double conditionDamage) {
+    public Stats(int power, int precision, int ferocity, int toughness, int vitality, int concentration, int expertise, int healingPower, int conditionDamage) {
         Power = power;
         Precision = precision;
         Ferocity = ferocity;
@@ -51,77 +51,75 @@ public class Stats {
         this.ConditionDamage = 0;
     }
 
-    public double getPower() {
+    public int getPower() {
         return Power;
     }
 
-    public void setPower(double power) {
+    public void setPower(int power) {
         Power = power;
     }
 
-    public double getPrecision() {
+    public int getPrecision() {
         return Precision;
     }
 
-    public void setPrecision(double precision) {
+    public void setPrecision(int precision) {
         Precision = precision;
     }
 
-    public double getFerocity() {
+    public int getFerocity() {
         return Ferocity;
     }
 
-    public void setFerocity(double ferocity) {
+    public void setFerocity(int ferocity) {
         Ferocity = ferocity;
     }
 
-    public double getToughness() {
+    public int getToughness() {
         return Toughness;
     }
 
-    public void setToughness(double toughness) {
+    public void setToughness(int toughness) {
         Toughness = toughness;
     }
 
-    public double getVitality() {
+    public int getVitality() {
         return Vitality;
     }
 
-    public void setVitality(double vitality) {
+    public void setVitality(int vitality) {
         Vitality = vitality;
     }
 
-    public double getConcentration() {
+    public int getConcentration() {
         return Concentration;
     }
 
-    public void setConcentration(double concentration) {
+    public void setConcentration(int concentration) {
         Concentration = concentration;
     }
 
-    public double getExpertise() {
+    public int getExpertise() {
         return Expertise;
     }
 
-    public void setExpertise(double expertise) {
+    public void setExpertise(int expertise) {
         Expertise = expertise;
     }
 
-    public double getHealingPower() {
+    public int getHealingPower() {
         return HealingPower;
     }
 
-    public void setHealingPower(double healingPower) {
+    public void setHealingPower(int healingPower) {
         HealingPower = healingPower;
     }
 
-    public double getConditionDamage() {
+    public int getConditionDamage() {
         return ConditionDamage;
     }
 
-    public void setConditionDamage(double conditionDamage) {
+    public void setConditionDamage(int conditionDamage) {
         ConditionDamage = conditionDamage;
     }
-
-
 }

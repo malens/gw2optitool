@@ -87,6 +87,10 @@ public class Result implements Comparable<Result>{
         return stats;
     }
 
+    public Sigil getMySigil2() {
+        return mySigil2;
+    }
+
     private int hash;
     private double EffectivePower;
     private double CritChance;
@@ -96,6 +100,16 @@ public class Result implements Comparable<Result>{
     private Util myUtil;
     private Rune myRune;
     private Sigil mySigil;
+    private Sigil mySigil2;
+    private CondiBonus bonuses;
+
+    public CondiBonus getBonuses() {
+        return bonuses;
+    }
+
+    public void setBonuses(CondiBonus bonuses) {
+        this.bonuses = bonuses;
+    }
 
     private Stats stats;
 
@@ -121,6 +135,33 @@ public class Result implements Comparable<Result>{
         this.myUtil = myUtil;
         this.myRune = myRune;
         this.mySigil = mySigil;
+        this.stats = stats;
+    }
+    public Result(int hash, double effectivePower, double critChance, double boonDuration, double totalStats, Food myFood, Util myUtil, Rune myRune, Sigil mySigil, Stats stats, CondiBonus bonus) {
+        this.hash = hash;
+        EffectivePower = effectivePower;
+        CritChance = critChance;
+        BoonDuration = boonDuration;
+        TotalStats = totalStats;
+        this.myFood = myFood;
+        this.myUtil = myUtil;
+        this.myRune = myRune;
+        this.mySigil = mySigil;
+        this.stats = stats;
+        this.bonuses = bonus;
+    }
+
+    public Result(int hash, double effectivePower, double critChance, double boonDuration, double totalStats, Food myFood, Util myUtil, Rune myRune, Sigil mySigil, Sigil mySigil2, Stats stats) {
+        this.hash = hash;
+        EffectivePower = effectivePower;
+        CritChance = critChance;
+        BoonDuration = boonDuration;
+        TotalStats = totalStats;
+        this.myFood = myFood;
+        this.myUtil = myUtil;
+        this.myRune = myRune;
+        this.mySigil = mySigil;
+        this.mySigil2 = mySigil2;
         this.stats = stats;
     }
 

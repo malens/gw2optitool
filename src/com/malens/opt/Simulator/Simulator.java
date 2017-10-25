@@ -41,6 +41,7 @@ public class Simulator {
         Stats banners = new Stats(170,170,170,0,0,0,0,0,170);
         Stats fotm = new Stats (0,225,0,225,0,225,0,0,0);
         //Stats specialStats = new Stats (0,0,0,0, 63*15, 0,0,0,0);
+        
 
         for (int a = 0; a<runes.size(); a++) {
             for (int b = 0; b<sigils.size(); b++) {
@@ -98,8 +99,8 @@ public class Simulator {
                             for (int k = 0; k < 14; k++) {
                                 if ((!args.getExcludeSet().contains(k))) {
                                     baseStats.add(sets.
-                                            getSetsArray().get(
-                                                    j % sets.getSetsArray().size()).
+                                            getSetsArray().
+                                            get(j % sets.getSetsArray().size()).
                                             getSet().
                                             get(k).
                                             getStats());
@@ -111,9 +112,11 @@ public class Simulator {
                             // add all other stats
                             ////////////////////////////////////////////////////////////
 
-                            myStats.add(currentFood.getAllStats(baseStats));
+                            baseStats.add(currentFood.getAllStats(baseStats));
                             myStats.add(currentUtil.getAllStats(baseStats));
                             myStats.add(baseStats);
+                            Stats gearStats = new Stats(0,0,0,0,0,0,0,0,0);
+                            gearStats.add(myStats);
                             myStats.add(boons);
                             myStats.add(otherbuffs);
                             myStats.add(banners);
@@ -127,36 +130,37 @@ public class Simulator {
                             // filter results to fit expectations
                             ////////////////////////////////////////////////////////////
 
-                            double critChance = min((myStats.Precision - 895) / 21, 100) / 100;
-                            double feroModifier = (150 + myStats.Ferocity / 15) / 100;
+                            double critChance = min((myStats.Precision - 895.0) / 21.0, 100)/100.0;
+                            double feroModifier = (150.0 + myStats.Ferocity / 15.0) / 100.0;
 
-                            double effectivePower = myStats.Power * (1 * (1 - critChance) + feroModifier * critChance);
+                            double effectivePower = myStats.Power * (1.0 * (1.0 - critChance) + feroModifier * critChance);
 
                             if (currentRune.getName() == "Scholar"){
-                                effectivePower *= 1.07;
+                                effectivePower *= 1.1;
                             }
 
-
-                            if ( myStats.Concentration/1500 >= args.getTargetBoonDuration()) {// && abs(myPrecision-2995) < 20) {
+                            if ( myStats.Concentration >= (int)java.lang.Math.round((args.getTargetBoonDuration() * 1500)) ) {
                                 Result result = new Result(
                                         i,
                                         effectivePower,
-                                        min(100, ((myStats.Precision - 895) / 21)),
-                                        myStats.Concentration / 15,
+                                        min(100, ((myStats.Precision - 895.0) / 21.0)),
+                                        myStats.Concentration / 15.0,
                                         effectivePower * 0.355 + min(myStats.Concentration,1500),
                                         currentFood,
                                         currentUtil,
                                         currentRune,
                                         currentSigil,
-                                        myStats);
+                                        gearStats);
 
                                 results.add(result);
 
-                                if (bestResults.size()<10){
+                                if (bestResults.size()<50){
                                     bestResults.add(result);
+
                                 } else if (bestResults.first().compareTo(result) < 0){
                                     bestResults.remove(bestResults.first());
                                     bestResults.add(result);
+
                                 }
                             }
                         }
@@ -171,16 +175,16 @@ public class Simulator {
 
 
         System.out.println("[==============================]100%");
-/*
+
         ////////////////////////////////////////////////////////
         // sort results by efficiency
         ////////////////////////////////////////////////////////
-
+/*
 
         System.out.println(results.size());
         System.out.println("Sorting...");
-        //results.sort(Result::compareTo);
-        results.sort(Result::compareByTotalStats);
+        results.sort(Result::compareTo);
+        //results.sort(Result::compareByTotalStats);
 
         ////////////////////////////////////////////////////////////
         // remove duplicates
@@ -223,6 +227,24 @@ public class Simulator {
         // print out results
         ////////////////////////////////////////////////////////////
 
+        int i = results.size()-1;
+        System.out.println(
+                "EP: "
+                        + form.format(results.get(i).getEffectivePower()) + space + "Crit%: "
+                        + form.format(results.get(i).getCritChance()) + space + "Boon%: "
+                        + form.format(results.get(i).getBoonDuration()) + space + "Total: "
+                        + form.format(results.get(i).getTotalStats()) + space + "Food: "
+                        + results.get(i).getMyFood().getName() + space + "Util: "
+                        + results.get(i).getMyUtil().getName() + space + "Runes: "
+                        + results.get(i).getMyRune().getName() + space + "Sigils: "
+                        + results.get(i).getMySigil().getName() + space + "Stats: " + space + "Power: "
+                        + results.get(i).getStats().getPower() + space + "Precision: "
+                        + results.get(i).getStats().getPrecision() + space + "Ferocity: "
+                        + results.get(i).getStats().getFerocity() + space + "Concentration: "
+                        + results.get(i).getStats().getConcentration() + space + "Set: "
+                        + sets.printSet(results.get(i).getHash()));
+
+
         File file = new File("1");
         int i = 1;
         try{
@@ -261,7 +283,8 @@ public class Simulator {
         } catch (Exception exception){
             exception.printStackTrace();
         }
-*/      //results.sort(Result::compareByTooughness);
+        */
+        //results.sort(Result::compareByTooughness);
         printResults(bestResults, sets);
         //printResults(results, sets);
         //results.sort(Result::compareTo);
@@ -274,21 +297,21 @@ public class Simulator {
                                     double base_damage, double factor, double condi_percentage,
                                     double condi_dmg, double condi_dur){
         //System.out.println(current_condi_duration + " " + current_condi_dmg + " " + base_damage + " " + factor  + " " + condi_percentage  + " " +  condi_dmg  + " " + condi_dur);
-        double new_base = condi_percentage / (1+condi_dur) * (base_damage/(base_damage + condi_dmg * factor)) * (1+current_condi_duration);
-        double new_bonus = condi_percentage / (1+condi_dur) * (current_condi_dmg * factor / (current_condi_dmg * factor + base_damage)) * (1+current_condi_duration);
+        double new_base = condi_percentage / (1.0+condi_dur) * (base_damage/(base_damage + condi_dmg * factor)) * (1.0+current_condi_duration);
+        double new_bonus = condi_percentage / (1.0+condi_dur) * (current_condi_dmg * factor / (current_condi_dmg * factor + base_damage)) * (1.0+current_condi_duration);
         //System.out.println(new_base + new_bonus);
-        if (condi_percentage==0 && new_base+new_bonus != 0) System.out.println(new_base+new_bonus);
+        if (condi_percentage==0.0 && new_base+new_bonus > 0.0) System.out.println(new_base+new_bonus);
         return new_base + new_bonus;
     }
 
 
 
     public static void simulate_condi (Parser.ParsedArgs args, ArrayList<Util> utils, ArrayList<Food> foods, ArrayList<Rune> runes, ArrayList<Sigil> sigils){
-int fuckoff = 1;
+        int fuckoff = 1;
         Sets sets = args.getSets();
 
-        ArrayList<Result> results = new ArrayList<>();
-
+        //ArrayList<Result> results = new ArrayList<>();
+        SortedSet<Result> bestResults = new TreeSet<>(Result::compareTo);
 
         Stats boons = new Stats(25*30,420,0,0,0,0,0,0,0);
         Stats otherbuffs = new Stats(0,150,0,0,0,0,0,0,0);
@@ -296,131 +319,169 @@ int fuckoff = 1;
         Stats fotm = new Stats (0,225,0,225,0,225,0,0,0);
         //Stats specialStats = new Stats (0,0,0,0, 63*15, 0,0,0,0);
         double currenthighest = 1;
+        Integer currentIt = 0;
+        Integer totalIt = Math.pow(args.getSets().getSetsArray().size(), 14) * utils.size() * foods.size() * runes.size() * sigils.size() * sigils.size() /2;
         for (int a = 0; a<runes.size(); a++) {
             for (int b = 0; b<sigils.size(); b++) {
                 for (int c = 0; c<foods.size(); c++) {
                     for (int d = 0; d<utils.size(); d++) {
-                        for (Integer i = 0; i <= pow(args.getSets().getSetsArray().size(), 14); i++) {
-                            Rune currentRune = runes.get(a);
-                            Sigil currentSigil = sigils.get(b);
-                            Food currentFood = foods.get(c);
-                            Util currentUtil = utils.get(d);
+                        for (int e = b + 1; e < sigils.size(); e++) {
+                            for (Integer i = 0; i <= pow(args.getSets().getSetsArray().size(), 14); i++) {
+                                currentIt ++;
+                                Rune currentRune = runes.get(a);
+                                Sigil currentSigil1 = sigils.get(b);
+                                Sigil currentSigil2 = sigils.get(e);
+                                Food currentFood = foods.get(c);
+                                Util currentUtil = utils.get(d);
 
-                            CondiBonus myBonus = new CondiBonus();
-                            myBonus.addBonus(currentRune.getCondiBonus());
-                            myBonus.addBonus(currentSigil.getCondiBonus());
-                            myBonus.addBonus(currentFood.getCondiBonus());
-                            myBonus.addBonus(currentUtil.getCondiBonus());
-                            myBonus.addBonus(args.getCondiBonuses());
+                                CondiBonus myBonus = new CondiBonus();
 
-                            fuckoff = 2;
-                            if (i%1000==0){
-                                fuckoff = 3;
-                                System.out.print("[");
-
-                                DecimalFormat form1 = new DecimalFormat("0");
+                                myBonus.addBonuses(currentRune.getCondiBonus());
+                                myBonus.addBonuses(currentSigil1.getCondiBonus());
+                                myBonus.addBonuses(currentSigil2.getCondiBonus());
+                                myBonus.addBonuses(currentFood.getCondiBonus());
+                                myBonus.addBonuses(currentUtil.getCondiBonus());
+                                myBonus.addBonuses(args.getCondiBonuses());
 
 
+                                fuckoff = 2;
+                                if (i % 1000 == 0) {
+                                    fuckoff = 3;
+                                    System.out.print("[");
 
-                                Integer totalI = Math.pow(args.getSets().getSetsArray().size(),14);
+                                    DecimalFormat form1 = new DecimalFormat("0");
 
-                                Integer totalIt = runes.size()*sigils.size()*foods.size()*utils.size()*totalI;
+                                    double currentPercentage = currentIt.doubleValue() / totalIt.doubleValue();
 
-                                Integer currentIt = i +
-                                        d * totalI +
-                                        c * utils.size() * totalI +
-                                        b * utils.size() * totalI * foods.size() +
-                                        a * sigils.size() * foods.size() * utils.size() * totalI;
-
-                                double currentPercentage = currentIt.doubleValue()/totalIt.doubleValue();
-
-                                for (double l = 0; l<30; l++){
-                                    if (l/30 < currentPercentage) System.out.print("=");
-                                    else System.out.print(" ");
+                                    for (double l = 0; l < 30; l++) {
+                                        if (l / 30 < currentPercentage) System.out.print("=");
+                                        else System.out.print(" ");
+                                    }
+                                    System.out.print("]" + form1.format(currentPercentage * 100) + "%\r");
                                 }
-                                System.out.print("]" + form1.format(currentPercentage * 100) + "%\r");
-                            }
-                            ////////////////////////////////////////////////////////////
-                            // initialize with base stats + runes and sigils
-                            // (everything that counts towards food bonus)
-                            ////////////////////////////////////////////////////////////
+                                ////////////////////////////////////////////////////////////
+                                // initialize with base stats + runes and sigils
+                                // (everything that counts towards food bonus)
+                                ////////////////////////////////////////////////////////////
 
 
+                                Stats baseStats = new Stats(1000, 1000, 0, 1000, 1000, 0, 0, 0, 0);
 
-                            Stats baseStats = new Stats(1000, 1000, 0, 1000, 1000, 0, 0, 0, 0);
-                            baseStats.add(currentRune.getAllStats(baseStats));
-                            baseStats.add(currentSigil.getAllStats(baseStats));
-                            baseStats.add(args.getStats());
+                                baseStats.add(currentSigil1.getAllStats(baseStats));
+                                baseStats.add(currentSigil2.getAllStats(baseStats));
+                                baseStats.add(args.getStats());
 
-                            Stats myStats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0);
+                                Stats myStats = new Stats(0, 0, 0, 0, 0, 0, 0, 0, 0);
 
-                            ////////////////////////////////////////////////////////////
-                            // add all gear stats
-                            // (it also counts towards food bonuses)
-                            ////////////////////////////////////////////////////////////
+                                ////////////////////////////////////////////////////////////
+                                // add all gear stats
+                                // (it also counts towards food bonuses)
+                                ////////////////////////////////////////////////////////////
 
-                            Integer j = i;
-                            for (int k = 0; k < 14; k++) {
-                                if ((!args.getExcludeSet().contains(k))) {
-                                    baseStats.add(sets.getSetsArray().get(j % sets.getSetsArray().size()).getSet().get(k).getStats());
+                                Integer j = i;
+                                for (int k = 0; k < 14; k++) {
+                                    if ((!args.getExcludeSet().contains(k))) {
+                                        baseStats.add(sets.getSetsArray().get(j % sets.getSetsArray().size()).getSet().get(k).getStats());
+                                    }
+                                    j /= sets.getSetsArray().size();
                                 }
-                                j /= sets.getSetsArray().size();
-                            }
 
-                            ////////////////////////////////////////////////////////////
-                            // add all other stats
-                            ////////////////////////////////////////////////////////////
+                                ////////////////////////////////////////////////////////////
+                                // add all other stats
+                                ////////////////////////////////////////////////////////////
 
-                            myStats.add(currentFood.getAllStats(baseStats));
-                            myStats.add(currentUtil.getAllStats(baseStats));
-                            myStats.add(baseStats);
-                            myStats.add(boons);
-                            myStats.add(otherbuffs);
-                            myStats.add(banners);
+                                baseStats.add(currentFood.getAllStats(baseStats));
+                                myStats.add(currentUtil.getAllStats(baseStats));
 
-                            if (args.isForFotm()) {
-                                myStats.add(fotm);
-                            }
-                            ////////////////////////////////////////////////////////////
-                            // filter results to fit expectations
-                            ////////////////////////////////////////////////////////////
+                                //myStats.Expertise+= baseStats.Precision*0.07;
+                                myStats.add(baseStats);
+                                myStats.add(boons);
+                                myStats.add(otherbuffs);
+                                myStats.add(banners);
+                                myStats.add(currentRune.getAllStats(myStats));
+                                if (args.isForFotm()) {
+                                    myStats.add(fotm);
+                                }
+                                ////////////////////////////////////////////////////////////
+                                // filter results to fit expectations
+                                ////////////////////////////////////////////////////////////
 
-                            double critChance = min((myStats.Precision - 895) / 21, 100) / 100;
-                            double feroModifier = (150 + myStats.Ferocity / 15) / 100;
-                            double effectivePower = myStats.Power * (1 * (1 - critChance) + feroModifier * critChance);
-                            double condiDuration = (myStats.Expertise/15)/100;
+                                double critChance = min((myStats.Precision - 895) / 21, 100) / 100;
+                                double feroModifier = (150 + myStats.Ferocity / 15) / 100;
+                                double effectivePower = myStats.Power * (1 * (1 - critChance) + feroModifier * critChance);
+                                double condiDuration = (myStats.Expertise / 15) / 100;
 
-                            double effectiveCondiDamage = get_condi_damage(min(condiDuration + myBonus.get("Bleeding"),1), myStats.ConditionDamage, 22,
-                                    0.06, args.getCondiPercentages().get("Bleeding"), args.getCondiDmg(), args.getCondiBonuses().get("Bleeding")) +
-                                    get_condi_damage(min(condiDuration + myBonus.get("Burning"),1), myStats.ConditionDamage, 131,
-                                            0.155, args.getCondiPercentages().get("Burning"), args.getCondiDmg(), args.getCondiBonuses().get("Burning")) +
-                                    get_condi_damage(min(condiDuration + myBonus.get("Confusion"),1), myStats.ConditionDamage, 22,
-                                            0.06, args.getCondiPercentages().get("Confusion"), args.getCondiDmg(), args.getCondiBonuses().get("Confusion")) +
-                                    get_condi_damage(min(condiDuration + myBonus.get("Poison"),1), myStats.ConditionDamage, 33.5,
-                                            0.06, args.getCondiPercentages().get("Poison"), args.getCondiDmg(), args.getCondiBonuses().get("Poison")) +
-                                    get_condi_damage(min(condiDuration + myBonus.get("Torment"),1), myStats.ConditionDamage, 22,
-                                            0.06, args.getCondiPercentages().get("Torment"), args.getCondiDmg(), args.getCondiBonuses().get("Torment"));
+                                double effectiveCondiDamage = get_condi_damage(min(condiDuration + myBonus.get("Bleeding"), 1.0), myStats.ConditionDamage, 22,
+                                        0.06, args.getCondiPercentages().get("Bleeding"), args.getCondiDmg(), args.getCondiBonuses().get("Bleeding")) +
+                                        get_condi_damage(min(condiDuration + myBonus.get("Burning"), 1.0), myStats.ConditionDamage, 131,
+                                                0.155, args.getCondiPercentages().get("Burning"), args.getCondiDmg(), args.getCondiBonuses().get("Burning")) +
+                                        get_condi_damage(min(condiDuration + myBonus.get("Confusion"), 1.0), myStats.ConditionDamage, 22,
+                                                0.06, args.getCondiPercentages().get("Confusion"), args.getCondiDmg(), args.getCondiBonuses().get("Confusion")) +
+                                        get_condi_damage(min(condiDuration + myBonus.get("Poison"), 1.0), myStats.ConditionDamage, 33.5,
+                                                0.06, args.getCondiPercentages().get("Poison"), args.getCondiDmg(), args.getCondiBonuses().get("Poison")) +
+                                        get_condi_damage(min(condiDuration + myBonus.get("Torment"), 1.0), myStats.ConditionDamage, 22,
+                                                0.06, args.getCondiPercentages().get("Torment"), args.getCondiDmg(), args.getCondiBonuses().get("Torment")) +
+                                        args.getCondiPercentages().get("Power") * effectivePower / args.getEffectivePower();
+                                double newdps = effectiveCondiDamage * args.getDps();
+
+                                if (currentSigil1.getName() == "Earth"){
+                                    newdps += (0.06 * myStats.ConditionDamage + 22) * 5 * min(2, condiDuration + myBonus.get("Bleeding"))/2;
+                                }
+                                if (currentSigil2.getName() == "Earth"){
+                                    newdps += (0.06 * myStats.ConditionDamage + 22) * 5 * min(2, condiDuration + myBonus.get("Bleeding"))/2;
+                                }
+                                if (currentSigil1.getName() == "Geomancy"){
+                                    newdps += (0.06 * myStats.ConditionDamage + 22) * 30 * min(2, condiDuration + myBonus.get("Bleeding"))/10;
+                                }
+                                if (currentSigil2.getName() == "Geomancy"){
+                                    newdps += (0.06 * myStats.ConditionDamage + 22) * 30 * min(2, condiDuration + myBonus.get("Bleeding"))/10;
+                                }
 
 
-                            if (effectiveCondiDamage>currenthighest) {// && abs(myPrecision-2995) < 20) {
-                                currenthighest = effectiveCondiDamage;
-                                results.add(new Result(
-                                        i,
-                                        effectiveCondiDamage,
-                                        min(100, ((myStats.Precision - 895) / 21)),
-                                        myStats.Concentration / 15,
-                                        myStats.Power + min(myStats.Precision, 2995) + myStats.Ferocity + myStats.Concentration,
-                                        currentFood,
-                                        currentUtil,
-                                        currentRune,
-                                        currentSigil)
-                                );
+
+                                if (true) {// && abs(myPrecision-2995) < 20) {
+                                    Result result = new Result(
+                                            i,
+                                            newdps,
+                                            min(100.0, ((myStats.Precision - 895.0) / 21.0)),
+                                            myStats.Concentration / 15.0,
+                                            effectivePower * 0.355 + min(myStats.Concentration, 1500.0),
+                                            currentFood,
+                                            currentUtil,
+                                            currentRune,
+                                            currentSigil1,
+                                            currentSigil2,
+                                            myStats);
+
+                                    //results.add(result);
+
+                                    if (bestResults.size() < 50) {
+                                        bestResults.add(result);
+                                    } else if (bestResults.first().compareTo(result) < 0) {
+                                        bestResults.remove(bestResults.first());
+                                        bestResults.add(result);
+                                    }
+                                }
+
+
+                                /*
+                                if (effectiveCondiDamage>currenthighest) {// && abs(myPrecision-2995) < 20) {
+                                    currenthighest = effectiveCondiDamage;
+                                    results.add(new Result(
+                                            i,
+                                            effectiveCondiDamage,
+                                            min(100, ((myStats.Precision - 895) / 21)),
+                                            myStats.Concentration / 15,
+                                            myStats.Power + min(myStats.Precision, 2995) + myStats.Ferocity + myStats.Concentration,
+                                            currentFood,
+                                            currentUtil,
+                                            currentRune,
+                                            currentSigil)
+                                    );
+                                }
+                                */
                             }
                         }
-
-
-
-
                     }
                 }
             }
@@ -434,14 +495,14 @@ int fuckoff = 1;
         ////////////////////////////////////////////////////////
 
 
-        System.out.println(results.size());
-        System.out.println("Sorting...");
-        results.sort(Result::compareTo);
+        //System.out.println(results.size());
+        //System.out.println("Sorting...");
+        //results.sort(Result::compareTo);
 
         ////////////////////////////////////////////////////////////
         // remove duplicates
         ////////////////////////////////////////////////////////////
-
+/*
         System.out.println("Removing duplicates...");
         int size = results.size();
         boolean flag = false;
@@ -468,6 +529,7 @@ int fuckoff = 1;
         results.sort(Result::compareTo);
 
         System.out.println(results.size()-removed);
+        */
         System.out.println("Done");
 
 
@@ -478,7 +540,31 @@ int fuckoff = 1;
         ////////////////////////////////////////////////////////////
         // print out results
         ////////////////////////////////////////////////////////////
+        /*
+        int i = 0;
+        while (i<results.size()&&results.get(i).getEffectivePower()<1){
+            i++;
+        }
+        */
+        for (Result x : bestResults){
+            System.out.println(
+                    "EP: "
+                            + form.format(x.getEffectivePower()) + space + "Crit%: "
+                            + form.format(x.getCritChance()) + space + "Boon%: "
+                            + form.format(x.getBoonDuration()) + space + "Total: "
+                            + form.format(x.getTotalStats()) + space + "Food: "
+                            + x.getMyFood().getName() + space + "Util: "
+                            + x.getMyUtil().getName() + space + "Runes: "
+                            + x.getMyRune().getName() + space + "Sigils: "
+                            + x.getMySigil().getName() + space
+                            //+ x.getBonuses().toString()
+                            + x.getStats().getExpertise()/1500 + space
+                            + x.getMySigil2().getName()
+                            + sets.printSet(x.getHash()));
+        }
 
+
+/*
         File file = new File("out.out");
         int i = 1;
         try{
@@ -512,7 +598,7 @@ int fuckoff = 1;
             }
         } catch (Exception exception){
             exception.printStackTrace();
-        }
+        }*/
 
     }
 
@@ -547,7 +633,7 @@ int fuckoff = 1;
                                 + form.format(x.getBoonDuration()) + space + "Total: "
                                 + form.format(x.getTotalStats()) + space + "Food: "
                                 + x.getMyFood().getName() + space + "Util: "
-                                + x.getMyUtil().getName() + space + "Runes: "
+                                + x.getMyUtil().getName() + " " + x.getMyUtil().getAllStats(x.getStats()).getConcentration() + space + "Runes: "
                                 + x.getMyRune().getName() + space + "Sigils: "
                                 + x.getMySigil().getName() + space + "Stats: " + space + "Power: "
                                 + x.getStats().getPower() + space + "Precision: "

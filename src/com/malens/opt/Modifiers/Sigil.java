@@ -25,6 +25,14 @@ public class Sigil {
         this.getStats = getStats;
     }
 
+    public Sigil(int id, String name, Function<Stats, Stats> getStats, Function<Stats, Double> getFlatDps, CondiBonus condiBonus) {
+
+        this.id = id;
+        this.name = name;
+        this.condiBonus = condiBonus;
+        this.getStats = getStats;
+    }
+
     public Sigil(int id, String name, Function<Stats, Stats> getStats) {
         this.id = id;
         this.name = name;
@@ -40,6 +48,7 @@ public class Sigil {
     }
 
     public Function<Stats, Stats> getStats;
+    public Function<Stats, Double> getFlatDps;
 
 
     public String getName() {

@@ -30,7 +30,7 @@ public class CondiBonus {
     }
 
     public double get(String name){
-        return bonuses.containsKey(name) ? min(bonuses.get(name), 1) : 0;
+        return bonuses.containsKey(name) ? Double.min(bonuses.get(name), 1.0) : 0.0;
     }
 
     public Map<String, Double> getBonuses() {
@@ -49,4 +49,20 @@ public class CondiBonus {
         }
     }
 
+    public void addBonuses(CondiBonus other){
+        if (other == null) return;
+        if (other.getBonuses().isEmpty()) return;
+        for (String x:other.getBonuses().keySet()){
+            this.add(x, other.get(x));
+        }
+    }
+
+    @Override
+    public String toString() {
+        String s = "";
+        for (String x:bonuses.keySet()){
+            s += x + " " + bonuses.get(x) + "\n";
+        }
+        return s;
+    }
 }

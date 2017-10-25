@@ -32,6 +32,15 @@ public class Parser {
         Sets sets;
         Stats stats;
         boolean help = false;
+        double dps;
+
+        public double getDps() {
+            return dps;
+        }
+
+        public void setDps(double dps) {
+            this.dps = dps;
+        }
 
         double targetBoonDuration = 0.99;
 
@@ -57,6 +66,16 @@ public class Parser {
 
         public double getTargetBoonDuration() {
             return targetBoonDuration;
+        }
+
+        public double EffectivePower;
+
+        public double getEffectivePower() {
+            return EffectivePower;
+        }
+
+        public void setEffectivePower(double effectivePower) {
+            EffectivePower = effectivePower;
         }
 
         public double getCondiDmg() {
@@ -183,6 +202,12 @@ public class Parser {
                 //System.out.println(x);
             }
             switch (split[0].toLowerCase()) {
+                case "ep" :
+                    parsed.setEffectivePower(getVal(split[1]));
+                    break;
+                case "dps":
+                    parsed.dps = getVal(split[1]);
+                    break;
                 case "boon%":
                     parsed.targetBoonDuration = getVal(split[1]);
                     break;
@@ -237,43 +262,43 @@ public class Parser {
 
                 case "po":
                 case "power":
-                    parsed.stats.setPower(getVal(split[1]));
+                    parsed.stats.setPower((int)getVal(split[1]));
                     break;
                 case "pr":
                 case "precision":
-                    parsed.stats.setPrecision(getVal(split[1]));
+                    parsed.stats.setPrecision((int)getVal(split[1]));
                     break;
                 case "f":
                 case "ferocity":
-                    parsed.stats.setFerocity(getVal(split[1]));
+                    parsed.stats.setFerocity((int)getVal(split[1]));
                     break;
 
                 case "t":
                 case "toughness":
-                    parsed.stats.setToughness(getVal(split[1]));
+                    parsed.stats.setToughness((int)getVal(split[1]));
                     break;
                 case "v":
                 case "vitality":
-                    parsed.stats.setVitality(getVal(split[1]));
+                    parsed.stats.setVitality((int)getVal(split[1]));
                     break;
 
                 case "c":
                 case "concentration":
-                    parsed.stats.setConcentration(getVal(split[1]));
+                    parsed.stats.setConcentration((int)getVal(split[1]));
                     break;
 
                 case "exp":
                 case "expertise":
-                    parsed.stats.setExpertise(getVal(split[1]));
+                    parsed.stats.setExpertise((int)getVal(split[1]));
                     break;
                 case "hp":
                 case "healingpower":
-                    parsed.stats.setHealingPower(getVal(split[1]));
+                    parsed.stats.setHealingPower((int)getVal(split[1]));
                     break;
 
                 case "cd":
                 case "conditiondamage":
-                    parsed.stats.setConditionDamage(getVal(split[1]));
+                    parsed.stats.setConditionDamage((int)getVal(split[1]));
                     break;
 
                 case"cdo":
